@@ -40,6 +40,8 @@ namespace TollPlazaWebApi.Controllers
             var ActiveEntry = _tollEntryRepository.GetByVehicleNumber(entry.VehicleNumber);
             if (ActiveEntry != null && ActiveEntry.isActive)
                 return BadRequest(new { message = "Vehicle is Already Entered From different Interchange" });
+            if(ActiveEntry?.EntryDate > DateTime.Now)
+                return BadRequest(new { message = "Entry date cannot be in future." });
 
             var TollEntry = new TollEntry
             {
@@ -71,6 +73,8 @@ namespace TollPlazaWebApi.Controllers
                 return NotFound(new { message = "Entry record not found" });
             if(!_tollManager.ContainsEntryPoints(exit.InterchangeName) || !_tollManager.ContainsEntryPoints(entry.EntryPoint))
                 return BadRequest(new { message = "Invalid interchange names" });
+            if (exit.Date > DateTime.Now)
+                return BadRequest(new { message = "Entry date cannot be in future." });
 
             if (exit.Date < entry.EntryDate)
                 return BadRequest(new { message = "Exit date cannot be earlier than entry date." });
